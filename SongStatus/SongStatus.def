@@ -1,0 +1,16 @@
+LIBRARY SongStatus
+EXPORTS
+	my_GetProcessImageFileNameW
+	my_GetProcessImageFileNameA	
+	GetAimpSongTitleW
+	GetKMPlayerSongTitleW
+	GetPotPlayerSongTitleW
+	GetMPCSongTitleW
+	GetWinampSongTitleW
+	
+	PluginStart
+	PluginStop
+	PluginProcess
+	PluginGetData
+	PluginShowOptions
+	PluginShowAbout
