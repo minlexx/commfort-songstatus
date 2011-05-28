@@ -6,8 +6,9 @@ enum PLAYER_IDS
 	AIMP_ID = 2,
 	KMP_ID = 3,
 	MPC_ID = 4,
+	FOOBAR_ID = 5,
 	//
-	PLAYERS_COUNT = MPC_ID
+	PLAYERS_COUNT = FOOBAR_ID
 };
 
 
@@ -28,7 +29,7 @@ struct CFG_ST_old
 	wchar_t text_PluginStopped[256];
 };
 
-#define CFG_VERSION 0x0200
+#define CFG_VERSION 0x0201
 struct CFG_ST
 {
 	int      version;

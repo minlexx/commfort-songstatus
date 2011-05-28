@@ -85,3 +85,21 @@ DWORD WINAPI GetPotPlayerSongTitleW(
 	ret = wcslen( lpszSongTitle );
 	return ret;
 }
+
+DWORD WINAPI GetFoobarSongTitleW(
+	__out  LPWSTR  lpszSongTitle,
+	__in   DWORD   nSize
+)
+{
+	DWORD ret = 0;
+	if( !lpszSongTitle || nSize<1 ) return 0;
+	memset( lpszSongTitle, 0, nSize*2 );
+	HWND hWnd = FindWindowW( L"{97E27FAA-C0B3-4b8e-A693-ED7881E99FC1}", NULL ); // standard skin
+	if( hWnd == NULL ) hWnd = FindWindowW( L"{E7076D1C-A7BF-4f39-B771-BCBE88F2A2A8}", NULL ); // ColumnsUI skin
+	// still NULL? no foobar
+	if( hWnd == NULL ) return 0;
+	// get winamp window text
+	GetWindowTextW( hWnd, lpszSongTitle, nSize );
+	ret = wcslen( lpszSongTitle );
+	return ret;
+}

@@ -141,7 +141,7 @@ DWORD WINAPI my_GetProcessImageFileNameW(
 				{
 					if( (strLen = GetMPCSongTitleW( lpszImageFileName, dwSize )) == 0 )
 					{
-						if( (strLen = GetPotPlayerSongTitleW( lpszImageFileName, dwSize )) == 0 )
+						if( (strLen = GetFoobarSongTitleW( lpszImageFileName, dwSize )) == 0 )
 						{
 							wcsncpy( lpszImageFileName, L"SongStatus: No player found!", dwSize-1 );
 							strLen = wcslen( lpszImageFileName );
@@ -179,6 +179,9 @@ DWORD WINAPI my_GetProcessImageFileNameW(
 					break;
 				case MPC_ID:
 					strLen = GetMPCSongTitleW( lpszImageFileName, dwSize-1 );
+					break;
+				case FOOBAR_ID:
+					strLen = GetFoobarSongTitleW( lpszImageFileName, dwSize-1 );
 					break;
 				}
 			}
