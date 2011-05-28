@@ -34,6 +34,7 @@ DWORD WINAPI GetAimpSongTitleW( __out LPWSTR lpszSongTitle,	__in DWORD nSize );
 DWORD WINAPI GetKMPlayerSongTitleW( __out LPWSTR lpszSongTitle, __in DWORD nSize );
 DWORD WINAPI GetMPCSongTitleW( __out LPWSTR lpszSongTitle, __in DWORD nSize );
 DWORD WINAPI GetPotPlayerSongTitleW( __out LPWSTR lpszSongTitle, __in DWORD nSize );
+DWORD WINAPI GetFoobarSongTitleW( __out LPWSTR lpszSongTitle, __in DWORD nSize );
 
 // hooks
 bool SetHook();

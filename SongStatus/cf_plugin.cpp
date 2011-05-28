@@ -151,10 +151,11 @@ BOOL __stdcall PluginStart( DWORD dwThisPluginID, fnCommFortProcess func1, fnCom
 
 	if( !cfg_load( g_cfg_file_dir, cfg ) )	
 	{
-		std::wstring msg( L"Файл настроек не найден, будет создан новый:\n" );
+		std::wstring msg( L"Проблема чтения настроек:\n" );
 		msg.append( g_cfg_file_dir );
 		msg.append( L"SongStatus.ini" );
-		MessageBox( NULL, msg.c_str(), TEXT("SongStatus: Загрузка конфига"), MB_ICONWARNING );
+		msg.append( L"\nПроверьте настройки SongStatus!" );
+		MessageBox( NULL, msg.c_str(), TEXT("SongStatus: Загрузка настроек"), MB_ICONWARNING );
 	}
 	cfg->enabled = 1;
 

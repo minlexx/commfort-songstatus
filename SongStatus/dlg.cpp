@@ -31,12 +31,15 @@ INT_PTR CALLBACK DlgProc_About( HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lPar
 	return TRUE;
 }
 
-static const TCHAR *szPlayers[PLAYERS_COUNT + 1] = {
+static const TCHAR *szPlayers[PLAYERS_COUNT + 2] = {
 	TEXT("NULL"),
 	TEXT("Winamp"),
 	TEXT("AIMP"),
 	TEXT("The KMPlayer"),
-	TEXT("Media Player Classic")
+	TEXT("Media Player Classic"),
+	TEXT("Foobar2000"),
+	//
+	TEXT("Array overflow!") // for safety!
 };
 
 static const TCHAR *szActions[ACT_COUNT] = {
@@ -108,6 +111,7 @@ void initCBAction( HWND hDlg )
 	int i;
 	for( i=0; i<ACT_COUNT; i++ )
 		ComboBox_AddString( hWndCB, szActions[i] );
+	ComboBox_SetCurSel( hWndCB, 0 ); // default?
 	if( g_cfg )
 	{
 		ComboBox_SetCurSel( hWndCB, g_cfg->action_player_not_found );

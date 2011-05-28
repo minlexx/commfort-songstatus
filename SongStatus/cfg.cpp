@@ -71,11 +71,29 @@ bool cfg_load( const wchar_t *cfgFileDir, CFG_ST *cfg )
 	}
 	cfg->enabled = prev_enabled;
 	// validate version
-	if( cfg->version != CFG_VERSION )
+	if( cfg->version == CFG_VERSION )
+	{
+		 // all OK
+	}
+	else if( cfg->version == 0x0200 )
+	{
+		cfg->order[4] = 0;
+		cfg->action_player_not_found = ACT_SHOW_USER_TEXT;
+		wcscpy( cfg->text_PlayerNotFound, L"Plugin updated!" );
+	}
+	else
 	{
 		MessageBoxW( NULL,
 			L"Неверный формат файла настроек или неподдерживаемая версия, проверьте настройки!",
 			L"SongStatus: Config file warning", MB_ICONWARNING );
+		// zero config (for safe)
+		cfg->enabled = 1;
+		cfg->action_player_not_found = ACT_SHOW_REAL_PROCESS;
+		int i;
+		for( i=0; i<PLAYERS_COUNT; i++ )
+			cfg->order[i] = 0;
+		cfg->version = CFG_VERSION;
+		memset( cfg->text_PlayerNotFound, 0, sizeof(cfg->text_PlayerNotFound) );
 	}
 	return nRead == sizeof(CFG_ST);
 }
