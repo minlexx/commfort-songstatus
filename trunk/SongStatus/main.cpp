@@ -2,12 +2,13 @@
 #include <stdio.h>
 #include "dll.h"
 #include "cfg.h"
+#include "hooks.h"
 
 
 // global vars
 HINSTANCE   g_hInstDLL   = NULL;
 HINSTANCE   g_hInstPSAPI = NULL;
-#ifdef HOOK_LOG
+#if defined(HOOK_LOG) || defined(_DEBUG)
 FILE       *g_flog       = NULL;
 #endif
 void       *g_GetProcessImageFileNameW_addr = NULL;
@@ -78,6 +79,35 @@ DWORD WINAPI DllMain( HINSTANCE hInstDLL, DWORD dwReasonForCall, LPVOID pvReserv
 
 
 
+void set_PFN_OnPlayerNotFound( HANDLE hProcess, LPWSTR lpszImageFileName, DWORD dwSize )
+{
+	CFG_ST *cfg = cfg_open();
+	if( !cfg ) return;
+	switch( cfg->action_player_not_found )
+	{
+	case ACT_SHOW_USER_TEXT:
+		wcsncpy( lpszImageFileName, cfg->text_PlayerNotFound, dwSize );
+		lpszImageFileName[dwSize-1] = 0;
+		break;
+	case ACT_SHOW_ACTIVE_WINDOW_TITLE:
+		{
+			HWND hW = GetForegroundWindow();
+			if( hW )
+				GetWindowText( hW, lpszImageFileName, dwSize );
+			else
+				wcscpy( lpszImageFileName, L"N/A" );
+		} break;
+	case ACT_SHOW_REAL_PROCESS:
+		orig_GetProcessImageFileNameW( hProcess, lpszImageFileName, dwSize );
+		break;
+	default:
+		wcscpy( lpszImageFileName, L"Player not found!" );
+		break;
+	}
+}
+
+
+
 //__declspec(naked)
 DWORD WINAPI my_GetProcessImageFileNameW(
 	__in   HANDLE  hProcess,
@@ -93,7 +123,6 @@ DWORD WINAPI my_GetProcessImageFileNameW(
 #ifdef HOOK_LOG
 	if( g_flog ) fprintf( g_flog, "my_GetProcessImageFileNameW() called, dwSize = %u\n", dwSize );
 #endif
-	UNREFERENCED_PARAMETER(hProcess);
 	if( dwSize < 1  ||  !lpszImageFileName ) return ERROR_INSUFFICIENT_BUFFER;
 	DWORD strLen = 0;
 
@@ -126,7 +155,7 @@ DWORD WINAPI my_GetProcessImageFileNameW(
 
 	if( !cfg->enabled )
 	{
-		wcsncpy( lpszImageFileName, L"SongStatus plugin stopped!", dwSize-1 );
+		set_PFN_OnPlayerNotFound( hProcess, lpszImageFileName, dwSize );
 		strLen = wcslen( lpszImageFileName );
 	}
 	else
@@ -157,7 +186,7 @@ DWORD WINAPI my_GetProcessImageFileNameW(
 		// still player not found?
 		if( strLen == 0 )
 		{
-			wcsncpy( lpszImageFileName, L"No player found!", dwSize-1 );
+			set_PFN_OnPlayerNotFound( hProcess, lpszImageFileName, dwSize );
 			strLen = wcslen( lpszImageFileName );
 		}
 	}

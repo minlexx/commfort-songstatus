@@ -104,3 +104,19 @@ bool Hook_RemoveHook()
 	return true;
 }
 
+__declspec(naked)
+DWORD WINAPI orig_GetProcessImageFileNameW(
+	__in   HANDLE  hProcess,
+	__out  LPWSTR  lpszImageFileName,
+	__in   DWORD   dwSize )
+{
+	UNREFERENCED_PARAMETER( hProcess );
+	UNREFERENCED_PARAMETER( lpszImageFileName );
+	UNREFERENCED_PARAMETER( dwSize );
+	__asm mov     edi, edi
+	__asm push    ebp
+	__asm mov     ebp, esp
+	__asm mov     eax, g_GetProcessImageFileNameW_addr
+	__asm add     eax, 5
+	__asm jmp     eax
+}
