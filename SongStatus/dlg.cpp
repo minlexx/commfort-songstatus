@@ -31,19 +31,25 @@ INT_PTR CALLBACK DlgProc_About( HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lPar
 	return TRUE;
 }
 
-static const TCHAR *szPlayers[5] = {
+static const TCHAR *szPlayers[PLAYERS_COUNT + 1] = {
 	TEXT("NULL"),
 	TEXT("Winamp"),
 	TEXT("AIMP"),
 	TEXT("The KMPlayer"),
 	TEXT("Media Player Classic")
 };
-const int nPlayers = 4;
+
+static const TCHAR *szActions[ACT_COUNT] = {
+	TEXT("Показывать реальный процесс"),
+	TEXT("Показывать заголовок активного окна"),
+	TEXT("Показывать текст :")
+};
+
 
 int GetPlayerID( const wchar_t *playerName )
 {
 	int i;
-	for( i=1; i<=nPlayers; i++ )
+	for( i=1; i<=PLAYERS_COUNT; i++ )
 	{
 		if( wcscmp( playerName, szPlayers[i] ) == 0 )
 			return i;
@@ -72,7 +78,7 @@ void updateLB1( HWND hDlg )
 	if( g_cfg )
 	{
 		int i = 0;
-		for( i=0; i<nPlayers; i++ )
+		for( i=0; i<PLAYERS_COUNT; i++ )
 		{
 			if( g_cfg->order[i] != 0 )
 				ListBox_AddString( hWndLB1, szPlayers[g_cfg->order[i]] );
@@ -88,10 +94,40 @@ void updateLB2( HWND hDlg )
 {
 	HWND hWndLB2 = GetDlgItem( hDlg, IDC_LIST2 );
 	int i = 0;
-	for( i=1; i<=nPlayers; i++ )
+	for( i=1; i<=PLAYERS_COUNT; i++ )
 	{
 		if( !IsPlayerAdded( hDlg, i ) )
 			ListBox_AddString( hWndLB2, szPlayers[i] );
+	}
+}
+
+void initCBAction( HWND hDlg )
+{
+	HWND hWndCB = GetDlgItem( hDlg, IDC_CBACTION );
+	HWND hWndEdit = GetDlgItem( hDlg, IDC_ETEXT );
+	int i;
+	for( i=0; i<ACT_COUNT; i++ )
+		ComboBox_AddString( hWndCB, szActions[i] );
+	if( g_cfg )
+	{
+		ComboBox_SetCurSel( hWndCB, g_cfg->action_player_not_found );
+		SetWindowText( hWndEdit, g_cfg->text_PlayerNotFound );
+	}
+}
+
+void updateCBAction( HWND hDlg )
+{
+	HWND hWndCB = GetDlgItem( hDlg, IDC_CBACTION );
+	HWND hWndEdit = GetDlgItem( hDlg, IDC_ETEXT );
+	int cur_sel = ComboBox_GetCurSel( hWndCB );
+	if( cur_sel == ACT_SHOW_USER_TEXT )
+	{
+		EnableWindow( hWndEdit, TRUE );
+		SetWindowText( hWndEdit, g_cfg->text_PlayerNotFound );
+	}
+	else
+	{
+		EnableWindow( hWndEdit, FALSE );
 	}
 }
 
@@ -104,6 +140,8 @@ INT_PTR CALLBACK DlgProc_Options( HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lP
 		{
 			updateLB1( hDlg );
 			updateLB2( hDlg );
+			initCBAction( hDlg );
+			updateCBAction( hDlg );
 			lParam = 0;
 		} break;
 	case WM_COMMAND:
@@ -155,7 +193,7 @@ INT_PTR CALLBACK DlgProc_Options( HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lP
 					int nSel = ListBox_GetCurSel( hWndLB1 );
 					if( nSel >= 0 )
 					{
-						if( nSel < nPlayers-1 )
+						if( nSel < PLAYERS_COUNT-1 )
 						{
 							TCHAR buffer[1024];
 							ListBox_GetText( hWndLB1, nSel, buffer );
@@ -165,19 +203,33 @@ INT_PTR CALLBACK DlgProc_Options( HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lP
 						}
 					}
 				} break;
+			case IDC_CBACTION:
+				{
+					updateCBAction( hDlg );
+				} break;
 			case IDOK:
 				{
 					int i;
 					int cnt = ListBox_GetCount( hWndLB1 );
+					// zero orders in config
 					if( g_cfg )
-						for( i=0; i<nPlayers; i++ )
+						for( i=0; i<PLAYERS_COUNT; i++ )
 							g_cfg->order[i] = 0;
+					// save players order
 					for( i=0; i<cnt; i++ )
 					{
 						TCHAR buffer[1024];
 						ListBox_GetText( hWndLB1, i, buffer );
 						if( g_cfg )
 							g_cfg->order[i] = GetPlayerID( buffer );
+					}
+					// save action & text
+					int cur_sel = ComboBox_GetCurSel( GetDlgItem( hDlg, IDC_CBACTION ) );
+					if( g_cfg ) g_cfg->action_player_not_found = cur_sel;
+					if( g_cfg )
+					{
+						if( g_cfg->action_player_not_found == ACT_SHOW_USER_TEXT )
+							GetDlgItemText( hDlg, IDC_ETEXT, g_cfg->text_PlayerNotFound, sizeof(g_cfg->text_PlayerNotFound)/sizeof(g_cfg->text_PlayerNotFound[0]) );
 					}
 					EndDialog( hDlg, IDOK );
 				} break;

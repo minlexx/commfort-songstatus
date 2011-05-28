@@ -9,4 +9,5 @@
 #define IDC_MOVEDOWN  1003
 #define IDC_ADD       1004
 #define IDC_DEL		  1005
-
+#define IDC_CBACTION  1006
+#define IDC_ETEXT     1007
